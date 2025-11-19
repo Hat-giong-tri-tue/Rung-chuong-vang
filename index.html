@@ -411,7 +411,7 @@
         });
     }
 
-    // --- Thiết lập ô nhập đáp án ---
+  // --- Thiết lập ô nhập đáp án ---
     function setupAnswerInputs() {
         const inputTable = document.getElementById('group-answer-inputs');
         inputTable.innerHTML = '';
@@ -444,6 +444,7 @@
 
         clearInterval(timer); 
         timeLeft = 30;
+        isAnswerPhase = false;
 
         const q = questions[currentQuestionIndex];
         const optionsContainer = document.getElementById('options-container');
@@ -471,6 +472,8 @@
         document.getElementById('status-message').style.display = 'none';
         
         setupAnswerInputs(); 
+        Array.from(document.querySelectorAll('#group-answer-inputs input')).forEach(input => input.disabled = false); // Mở khóa nhập liệu
+        
         startTimer();
     }
 
@@ -482,12 +485,13 @@
 
             if (timeLeft <= 0) {
                 clearInterval(timer);
+                isAnswerPhase = true; // Chuyển sang giai đoạn chờ nhập đáp án
                 
                 document.getElementById('status-message').style.display = 'block';
-                document.getElementById('question-text').innerHTML = `<strong>${questions[currentQuestionIndex].text}</strong> Hết giờ! Vui lòng nhấn "XEM ĐÁP ÁN"...`;
-                
+                document.getElementById('status-message').innerHTML = 'HẾT GIỜ! Vui lòng nhập đáp án vào ô và nhấn "XEM ĐÁP ÁN" để tiếp tục.';
+
+                // Ô nhập đáp án vẫn mở
                 document.getElementById('show-answer-btn').style.display = 'block';
-                Array.from(document.querySelectorAll('#group-answer-inputs input')).forEach(input => input.disabled = true);
                 
                 // Tạm dừng nhạc nền khi hết giờ
                 stopBackgroundMusic();
@@ -497,11 +501,19 @@
 
     // --- Hiển thị đáp án ---
     function showAnswer() {
+        if (!isAnswerPhase) {
+            alert("Vui lòng đợi hết thời gian đếm ngược hoặc nhấn nút 'XEM ĐÁP ÁN' chỉ sau khi đồng hồ về 0.");
+            return;
+        }
+
+        // Khóa các ô nhập lại để nhóm không thay đổi câu trả lời
+        Array.from(document.querySelectorAll('#group-answer-inputs input')).forEach(input => input.disabled = true);
+
         // Phát nhạc nền trở lại
         playBackgroundMusic(); 
 
         document.getElementById('show-answer-btn').style.display = 'none';
-        document.getElementById('status-message').style.display = 'none'; 
+        document.getElementById('status-message').innerHTML = 'Đã chốt đáp án! Nhấn "TÍNH ĐIỂM CÂU NÀY" để xem kết quả.';
 
         const q = questions[currentQuestionIndex];
         const options = document.getElementById('options-container').children;
@@ -512,7 +524,6 @@
             options[answerIndex].classList.add('answer');
         }
 
-        document.getElementById('question-text').innerHTML = `<strong>${q.text}</strong> Đáp án đã được hiển thị! Vui lòng nhấn "TÍNH ĐIỂM CÂU NÀY".`;
         document.getElementById('calculate-btn').style.display = 'block'; 
     }
 
@@ -539,10 +550,10 @@
         updateScoreboard();
         
         currentQuestionIndex++;
+        isAnswerPhase = false;
         
         document.getElementById('calculate-btn').disabled = false;
         document.getElementById('calculate-btn').style.display = 'none';
-        Array.from(document.querySelectorAll('#group-answer-inputs input')).forEach(input => input.disabled = false);
 
         if (currentQuestionIndex < questions.length) {
             document.getElementById('start-btn').innerHTML = `BẮT ĐẦU CÂU HỎI ${currentQuestionIndex + 1}`;
@@ -602,5 +613,5 @@
 
 </script>
 </body>
-
 </html>
+
