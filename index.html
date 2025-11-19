@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rung Chuông Vàng - Khúc Xạ Ánh Sáng</title>
+    <style>
+        /* CSS cho giao diện */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1 {
+            color: #d9534f;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #d9534f;
+            display: inline-block;
+            padding-bottom: 10px;
+        }
+
+/* Thêm style cho phần hiển thị Audio Control */
+        #audio-controls-container {
+            margin: 10px auto 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #ffe0e0;
+            max-width: 500px;
+            /* Đảm bảo nó hiển thị ở màn hình bắt đầu */
+            display: block; 
+        }
+        
+        #audio-controls-container p {
+            font-weight: bold;
+            color: #d9534f;
+            margin-top: 0;
+        }
+        
+        .game-content {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        /* Bảng điểm */
+        #scoreboard {
+            width: 250px;
+            flex-shrink: 0;
+            background-color: #eaf6ff;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #5bc0de;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            text-align: left;
+        }
+
+        .group-score {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 1.1em;
+            border-bottom: 1px dashed #ccc;
+        }
+        
+        .group-icon {
+            margin-right: 5px;
+            font-size: 1.2em;
+        }
+
+        #game-area {
+            flex-grow: 1;
+            text-align: left;
+        }
+
+        #rules-section {
+            border: 2px dashed #f0ad4e;
+            padding: 15px;
+            margin: 20px auto;
+            max-width: 600px;
+            background-color: #fffde7;
+            text-align: left;
+            border-radius: 8px;
+        }
+
+        /* Đồng hồ */
+        #timer {
+            font-size: 3em;
+            color: #d9534f;
+            font-weight: bold;
+            padding: 0;
+            border: 3px solid #d9534f;
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+            line-height: 100px; 
+            margin: 20px auto;
+            background-color: #ffeeee;
+            text-align: center; 
+        }
+
+        #question-display {
+            min-height: 250px;
+            border: 2px solid #5bc0de;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            background-color: #eaf6ff;
+        }
+
+        /* TĂNG CỠ CHỮ CÂU HỎI VÀ LỰA CHỌN */
+        #question-display #question-text {
+            font-size: 1.3em; 
+            line-height: 1.5;
+        }
+
+        #question-display .option {
+            font-size: 1.1em; 
+        }
+
+        /* Đảm bảo chữ A, B, C, D và toàn bộ câu hỏi in đậm */
+        #question-text strong, 
+        #question-display .option strong {
+            font-weight: bold;
+        }
+
+        .option.answer {
+            background-color: #f0ad4e; 
+            color: #333;
+            font-weight: normal; 
+        }
+        
+        /* Hiển thị input nhập đáp án */
+        #input-score-section {
+            text-align: center;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        /* Thiết lập bảng nhập đáp án */
+        #group-answer-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            table-layout: fixed; 
+        }
+
+        #group-answer-table th, #group-answer-table td {
+            padding: 5px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        #group-answer-table input {
+            width: 50px;
+            text-transform: uppercase;
+            text-align: center;
+            font-weight: bold;
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        
+        .action-button {
+            background-color: #5bc0de; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 5px; 
+            margin: 5px;
+            cursor: pointer;
+        }
+        
+        .calculate-button {
+            background-color: #d9534f;
+        }
+        
+        /* --- PHẦN TỔNG KẾT CỠ CHỮ LỚN VÀ CĂN GIỮA --- */
+        #end-game-results {
+            margin-top: 30px;
+            padding: 40px; 
+            background-color: #d4edda;
+            color: #155724;
+            border: 3px solid #c3e6cb;
+            border-radius: 10px;
+            display: none;
+            text-align: center;
+            /* Căn giữa tuyệt đối trong container */
+            margin-left: auto; 
+            margin-right: auto;
+        }
+        
+        #end-game-results h3 {
+            font-size: 3em; 
+            color: #d9534f;
+            margin-bottom: 20px;
+        }
+        
+        #end-game-results h4 {
+            font-size: 2em; 
+            margin-top: 20px;
+        }
+
+        #end-game-results ul {
+            padding: 0;
+            list-style: none;
+        }
+
+        #end-game-results ul li {
+            font-size: 1.5em; 
+            padding: 10px 0;
+            border-bottom: 1px dashed #a8c8b4;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🔔 RUNG CHUÔNG VÀNG 💡</h1>
+    <h2>Khúc Xạ Ánh Sáng (Lớp 9)</h2>
+
+    <audio id="bgMusic" loop preload="auto">
+       <source src="https://drive.google.com/file/d/1B3qiiQNopmpAVprsBk726gCxKjR9QWkj/view?usp=sharing" type="audio/mp3">
+        Trình duyệt của bạn không hỗ trợ thẻ audio.
+    </audio>
+    
+    <audio id="victoryMusic" preload="auto">
+       <source src="https://drive.google.com/file/d/170HFf39aDfkmfZVmhXlvBKyu_OieJIOQ/view?usp=sharing" type="audio/mp3">
+        Trình duyệt của bạn không hỗ trợ thẻ audio.
+    </audio>
+
+    <div id="start-screen">
+        <h3>Thiết lập trò chơi</h3>
+        <label for="num-groups">Nhập số lượng nhóm (1-10):</label>
+        <input type="number" id="num-groups" min="1" max="10" value="5">
+        
+        <div id="rules-section">
+            <h4>📖 LUẬT CHƠI TRÒ CHƠI RUNG CHUÔNG VÀNG</h4>
+            <ul>
+                <li>Trò chơi gồm 5 câu hỏi trắc nghiệm (A, B, C, D) để củng cố bài học.</li>
+                <li>Mỗi câu hỏi có 30 giây thời gian trả lời (tốc độ đếm ngược nhanh hơn 1.5 lần).</li>
+                <li>Quy tắc tính điểm: Trả lời đúng được cộng 1 điểm. Trả lời sai không được điểm nào.</li>
+                <li>Nhóm chiến thắng là nhóm đạt điểm cao nhất, sẽ nhận được phần quà.</li>
+            </ul>
+        </div>
+
+        <button onclick="startGame()">Bắt Đầu Chơi</button>
+    </div>
+
+    <div id="game-screen" style="display:none;">
+        <div id="end-game-results"></div>
+
+        <div class="game-content">
+            <div id="scoreboard">
+                <h3>🏆 Bảng Điểm 🏆</h3>
+                <div id="score-list">
+                </div>
+            </div>
+
+            <div id="game-area">
+                <div id="timer">30</div>
+                <div id="status-message" style="display:none;">HẾT GIỜ!</div>
+
+                <div id="question-display">
+                    <div id="question-text">Click nút "Bắt Đầu" để tải câu hỏi đầu tiên...</div>
+                    <div id="options-container"></div>
+                </div>
+
+                <div id="answer-input-area">
+                    <div id="control-buttons">
+                        <button id="start-btn" onclick="nextQuestion()" class="action-button start-next-button">BẮT ĐẦU CÂU HỎI 1</button>
+                        <button id="show-answer-btn" onclick="showAnswer()" class="action-button" style="display:none;">XEM ĐÁP ÁN</button>
+                    </div>
+
+                    <div id="input-score-section" style="display:none; margin-top:15px;">
+                        <h4>Nhập đáp án của các nhóm (A, B, C, hoặc D)</h4>
+                        <table id="group-answer-table">
+                            <tbody id="group-answer-inputs">
+                            </tbody>
+                        </table>
+                        <button id="calculate-btn" onclick="calculateScore()" class="action-button calculate-button" style="display:none;">TÍNH ĐIỂM CÂU NÀY</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const TIMER_INTERVAL_MS = 667; 
+    const GROUP_ICONS = ['🌟', '💡', '🚀', '🔬', '🌍', '🧪', '🔥', '💧', '⚡', '✨'];
+
+    const questions = [
+        // Câu 1: Giữ nguyên
+        { text: "Câu 1. Hiện tượng khúc xạ ánh sáng mô tả sự thay đổi nào của tia sáng?", options: ["A. Tia sáng bị lệch khỏi phương truyền thẳng ban đầu khi đi qua một môi trường trong suốt duy nhất.", "B. Tia sáng bị bẻ cong và quay trở lại môi trường cũ khi gặp mặt phân cách giữa hai môi trường.", "C. Tia sáng bị lệch khỏi phương truyền ban đầu tại mặt phân cách khi truyền từ môi trường trong suốt này sang môi trường trong suốt khác.", "D. Tia sáng bị phân tách thành nhiều màu sắc khác nhau khi đi qua môi trường trong suốt khác."], answerKey: 'C' },
+        
+        // Câu 2: Đã bỏ dấu $
+        { text: "Câu 2. Trong sơ đồ đường đi của tia sáng bị khúc xạ, góc khúc xạ r được xác định là góc tạo bởi thành phần nào sau đây?", options: ["A. Tia tới và tia khúc xạ.", "B. Tia tới và pháp tuyến tại điểm tới.", "C. Tia khúc xạ và mặt phân cách.", "D. Tia khúc xạ và pháp tuyến tại điểm tới."], answerKey: 'D' }, 
+        
+        // Câu 3: Đã bỏ dấu $
+        { text: "Câu 3. Theo định luật khúc xạ ánh sáng, đối với hai môi trường trong suốt nhất định, đại lượng nào sau đây luôn không đổi khi góc tới i thay đổi?", options: ["A. Hiệu số sin i và sin r.", "B. Tỉ số giữa sin i và sin r.", "C. Tỉ số giữa góc i và góc r.", "D. Góc khúc xạ r."], answerKey: 'B' }, 
+        
+        // Câu 4: Đã bỏ dấu $
+        { text: "Câu 4. Tốc độ ánh sáng trong chân không là c = 300000 km/s và tốc độ ánh sáng truyền trong nước là v = 225000 km/s. Chiết suất của nước là bao nhiêu?", options: ["A. 1,333.", "B. 1,000.", "C. 1,520.", "D. 1,309."], answerKey: 'A' }, 
+        
+        // Câu 5: Đã bỏ dấu $ và thay ^{\\circ} thành "độ"
+        { text: "Câu 5. Một tia sáng truyền từ không khí n1 ≈ 1 vào nước n2 = 1,33. Nếu góc khúc xạ r = 22 độ thì góc tới i xấp xỉ bằng bao nhiêu?", options: ["A. 15 độ", "B. 22 độ", "C. 30 độ", "D. 45 độ"], answerKey: 'C' } 
+    ];
+    
+    const answerKeyMap = { 'A': 0, 'B': 1, 'C': 2, 'D': 3 };
+
+    let currentQuestionIndex = 0;
+    let timer;
+    let timeLeft = 30;
+    let numGroups = 0;
+    let groupScores = []; 
+
+
+    // --- CHỨC NĂNG AUDIO ---
+    function playBackgroundMusic() {
+        const bgMusic = document.getElementById('bgMusic');
+        document.getElementById('victoryMusic').pause(); 
+        
+        bgMusic.volume = 0.5; 
+        // Thử phát, nhưng chủ yếu dựa vào người dùng bấm nút Play thủ công
+        bgMusic.play().catch(e => {
+            console.log('Background music auto-playback blocked. User must use controls on start screen.');
+        });
+    }
+
+    function stopBackgroundMusic() {
+        const bgMusic = document.getElementById('bgMusic');
+        bgMusic.pause();
+    }
+
+    function playVictoryMusic() {
+        // Đảm bảo nhạc nền dừng
+        stopBackgroundMusic(); 
+
+        const victoryMusic = document.getElementById('victoryMusic');
+        victoryMusic.volume = 0.8; 
+        victoryMusic.play().catch(e => {
+             console.log('Victory music playback blocked.');
+        });
+    }
+
+    // --- Khởi tạo trò chơi ---
+    function startGame() {
+        numGroups = parseInt(document.getElementById('num-groups').value) || 5; 
+        
+        if (numGroups < 1 || numGroups > 10) {
+            alert("Vui lòng nhập số lượng nhóm hợp lệ từ 1 đến 10.");
+            return;
+        }
+        
+        groupScores = [];
+        for (let i = 1; i <= numGroups; i++) {
+            groupScores.push({ id: i, score: 0 });
+        }
+
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('game-screen').style.display = 'flex'; 
+        document.getElementById('end-game-results').style.display = 'none';
+        
+        playBackgroundMusic();
+
+        updateScoreboard();
+        setupAnswerInputs();
+        
+        currentQuestionIndex = 0;
+        document.getElementById('question-text').innerHTML = `Sẵn sàng cho Câu hỏi ${currentQuestionIndex + 1}?`;
+        document.getElementById('options-container').innerHTML = "";
+        document.getElementById('timer').innerHTML = "30";
+        document.getElementById('status-message').style.display = 'none';
+
+        document.getElementById('start-btn').innerHTML = `BẮT ĐẦU CÂU HỎI ${currentQuestionIndex + 1}`;
+        document.getElementById('show-answer-btn').style.display = 'none';
+        document.getElementById('calculate-btn').style.display = 'none';
+        document.getElementById('start-btn').style.display = 'block';
+        document.getElementById('input-score-section').style.display = 'none';
+    }
+
+    // --- Cập nhật bảng điểm ---
+    function updateScoreboard() {
+        const scoreList = document.getElementById('score-list');
+        scoreList.innerHTML = '';
+        groupScores.forEach((group, index) => {
+            const icon = GROUP_ICONS[index % GROUP_ICONS.length];
+            const div = document.createElement('div');
+            div.className = 'group-score';
+            div.innerHTML = `<span><span class="group-icon">${icon}</span>Nhóm ${group.id}:</span> <span id="score-group-${group.id}">${group.score} điểm</span>`;
+            scoreList.appendChild(div);
+        });
+    }
+
+    // --- Thiết lập ô nhập đáp án ---
+    function setupAnswerInputs() {
+        const inputTable = document.getElementById('group-answer-inputs');
+        inputTable.innerHTML = '';
+        
+        const numGroups = groupScores.length;
+
+        let labelRow = '<tr>';
+        let inputRow = '<tr>';
+        
+        for (let i = 1; i <= numGroups; i++) {
+            const label = `<label for="ans-group-${i}">Nhóm ${i}</label>`;
+            const input = `<input type="text" id="ans-group-${i}" maxlength="1" pattern="[A-Da-d]" required>`;
+            
+            labelRow += `<th>${label}</th>`;
+            inputRow += `<td>${input}</td>`;
+        }
+        
+        labelRow += '</tr>';
+        inputRow += '</tr>';
+        
+        inputTable.innerHTML = labelRow + inputRow;
+    }
+
+    // --- Tải và chạy câu hỏi tiếp theo ---
+    function nextQuestion() {
+        if (currentQuestionIndex >= questions.length) {
+            endGame();
+            return;
+        }
+
+        clearInterval(timer); 
+        timeLeft = 30;
+
+        const q = questions[currentQuestionIndex];
+        const optionsContainer = document.getElementById('options-container');
+        
+        document.getElementById('question-text').innerHTML = `<strong>${q.text}</strong>`;
+        optionsContainer.innerHTML = '';
+
+        q.options.forEach((option) => {
+            const formattedOption = option.replace(/^([A-D]\.)/, '<strong>$1</strong>'); 
+
+            const p = document.createElement('p');
+            p.className = 'option';
+            p.innerHTML = formattedOption;
+            optionsContainer.appendChild(p);
+        });
+
+        Array.from(optionsContainer.children).forEach(p => p.classList.remove('answer'));
+
+        document.getElementById('start-btn').style.display = 'none';
+        document.getElementById('show-answer-btn').style.display = 'none';
+        document.getElementById('calculate-btn').style.display = 'none'; 
+        document.getElementById('input-score-section').style.display = 'block'; 
+        
+        document.getElementById('timer').innerHTML = timeLeft;
+        document.getElementById('status-message').style.display = 'none';
+        
+        setupAnswerInputs(); 
+        startTimer();
+    }
+
+    // --- Đồng hồ đếm ngược ---
+    function startTimer() {
+        timer = setInterval(() => {
+            timeLeft--;
+            document.getElementById('timer').innerHTML = timeLeft;
+
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                
+                document.getElementById('status-message').style.display = 'block';
+                document.getElementById('question-text').innerHTML = `<strong>${questions[currentQuestionIndex].text}</strong> Hết giờ! Vui lòng nhấn "XEM ĐÁP ÁN"...`;
+                
+                document.getElementById('show-answer-btn').style.display = 'block';
+                Array.from(document.querySelectorAll('#group-answer-inputs input')).forEach(input => input.disabled = true);
+                
+                // Tạm dừng nhạc nền khi hết giờ
+                stopBackgroundMusic();
+            }
+        }, TIMER_INTERVAL_MS);
+    }
+
+    // --- Hiển thị đáp án ---
+    function showAnswer() {
+        // Phát nhạc nền trở lại
+        playBackgroundMusic(); 
+
+        document.getElementById('show-answer-btn').style.display = 'none';
+        document.getElementById('status-message').style.display = 'none'; 
+
+        const q = questions[currentQuestionIndex];
+        const options = document.getElementById('options-container').children;
+        const answerKey = q.answerKey;
+        const answerIndex = answerKeyMap[answerKey];
+
+        if (answerIndex >= 0 && answerIndex < options.length) {
+            options[answerIndex].classList.add('answer');
+        }
+
+        document.getElementById('question-text').innerHTML = `<strong>${q.text}</strong> Đáp án đã được hiển thị! Vui lòng nhấn "TÍNH ĐIỂM CÂU NÀY".`;
+        document.getElementById('calculate-btn').style.display = 'block'; 
+    }
+
+    // --- Tính điểm cho câu hiện tại ---
+    function calculateScore() {
+        const questionToScoreIndex = currentQuestionIndex; 
+
+        document.getElementById('calculate-btn').disabled = true;
+
+        const currentAnswerKey = questions[questionToScoreIndex].answerKey;
+
+        for (let i = 1; i <= numGroups; i++) {
+            const inputElement = document.getElementById(`ans-group-${i}`);
+            
+            if (inputElement) {
+                const groupAnswer = inputElement.value.toUpperCase();
+
+                if (groupAnswer === currentAnswerKey) {
+                    groupScores[i - 1].score += 1;
+                }
+            }
+        }
+
+        updateScoreboard();
+        
+        currentQuestionIndex++;
+        
+        document.getElementById('calculate-btn').disabled = false;
+        document.getElementById('calculate-btn').style.display = 'none';
+        Array.from(document.querySelectorAll('#group-answer-inputs input')).forEach(input => input.disabled = false);
+
+        if (currentQuestionIndex < questions.length) {
+            document.getElementById('start-btn').innerHTML = `BẮT ĐẦU CÂU HỎI ${currentQuestionIndex + 1}`;
+            document.getElementById('start-btn').style.display = 'block';
+            document.getElementById('input-score-section').style.display = 'none';
+            document.getElementById('question-text').innerHTML = `Sẵn sàng cho Câu hỏi ${currentQuestionIndex + 1}?`;
+            document.getElementById('options-container').innerHTML = ""; 
+        } else {
+            endGame();
+        }
+    }
+
+
+    // --- Kết thúc trò chơi và tổng kết điểm ---
+    function endGame() {
+        playVictoryMusic(); 
+
+        document.getElementById('game-area').style.display = 'none';
+        document.getElementById('scoreboard').style.display = 'none'; 
+        document.getElementById('end-game-results').style.display = 'block';
+
+        let maxScore = -1;
+        groupScores.forEach(group => {
+            if (group.score > maxScore) {
+                maxScore = group.score;
+            }
+        });
+
+        const winners = groupScores.filter(group => group.score === maxScore);
+        
+        let resultHTML = "<h3>🎉 TRÒ CHƠI KẾT THÚC! 🎉</h3>";
+        
+        resultHTML += "<h4>Bảng tổng kết điểm:</h4>";
+        resultHTML += "<ul>";
+        groupScores.forEach((group, index) => {
+            const icon = GROUP_ICONS[index % GROUP_ICONS.length];
+            resultHTML += `<li><span class="group-icon">${icon}</span><strong>Nhóm ${group.id}:</strong> ${group.score} điểm</li>`;
+        });
+        resultHTML += "</ul>";
+
+        resultHTML += "<hr>";
+
+        if (maxScore === 0) {
+             resultHTML += "<h4>Không có nhóm nào trả lời đúng câu hỏi. Hãy cố gắng hơn nhé!</h4>";
+        } else if (winners.length === 1) {
+            const icon = GROUP_ICONS[winners[0].id - 1]; 
+            resultHTML += `<h4 style="color:#d9534f;">🏆 CHÚC MỪNG NHÓM ${winners[0].id} ${icon} ĐÃ GIÀNH CHIẾN THẮNG với ${maxScore} điểm! 🏆</h4>`;
+        } else {
+            const winnerNames = winners.map(w => `Nhóm ${w.id} ${GROUP_ICONS[w.id - 1]}`).join(', ');
+            resultHTML += `<h4 style="color:#d9534f;">🏆 CHÚC MỪNG CÁC NHÓM ${winnerNames} ĐỒNG HẠNG NHẤT với ${maxScore} điểm! 🏆</h4>`;
+        }
+
+        resultHTML += `<button onclick="document.location.reload()" class="action-button calculate-button" style="margin-top: 15px;">CHƠI LẠI</button>`;
+
+        document.getElementById('end-game-results').innerHTML = resultHTML;
+    }
+
+</script>
+</body>
+</html>
